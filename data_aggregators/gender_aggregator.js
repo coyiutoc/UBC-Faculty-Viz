@@ -1,7 +1,19 @@
-module.exports = function (data) {
+module.exports = function (df) {
     
-//     // From a collection (easier)
-// const df = new DataFrame(data, ['name', 'renumeration', 'expenses', 'position', 'department', 'gender']);
+    const groupedDF = df.groupBy('gender');
 
-// console.log(df.show());
+    let res = groupedDF.aggregate(group => group.stat.sum('renumeration')).rename('aggregation', 'sum_renumeration');
+    res.sortBy('sum_renumeration', false);
+    res.show()
+
+    let collection = res.toCollection();
+    let total = 0;
+
+    for (let row of collection) {
+    	total += row.sum_renumeration;
+    }
+
+    collection.push({"total": total})
+
+    return collection;
 }

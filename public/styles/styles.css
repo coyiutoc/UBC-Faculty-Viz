@@ -1,0 +1,21 @@
+html, body {
+	background-color: #000000;
+	color: #ffffff;
+	height: 100%;
+}
+
+text {
+	font-family: 'Nunito', sans-serif;
+	font-family: 'Roboto', sans-serif;
+}
+
+#graph-container {
+	height: 100%;
+	display: flex;
+	align-items: center;
+  	justify-content: center;
+}
+
+#graph {
+	/*background-color: #B10DC9;*/
+}
