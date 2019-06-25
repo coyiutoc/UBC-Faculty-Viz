@@ -97,9 +97,10 @@ var slices = svg.selectAll('.slice')
                   percent = percent.toFixed(2);
 
                   $('#main-center-text').text(percent + "%");
-                  $('#main-center-text').attr("fill", color_gen(i));
-
                   $('#sub-center-text').text("CAD$ " + sum);
+
+                  d3.select('#main-center-text').transition().duration(1000).attr('fill', color_gen(i));
+                  d3.select('#sub-center-text').transition().duration(1000).attr('fill', "white");
                 })
                 .on("mouseout", function(d) {
 
@@ -108,9 +109,8 @@ var slices = svg.selectAll('.slice')
                     .attr("d", arc)
                     .style("opacity", 0.7);
 
-                  $('#main-center-text').text("");
-                  $('#sub-center-text').text("");
-
+                  d3.select('#main-center-text').transition().duration(1000).attr('fill', "black");
+                  d3.select('#sub-center-text').transition().duration(1000).attr('fill', "black");
                 });
 
 var center_text = svg.append("text")
@@ -122,14 +122,14 @@ var main_tspan = center_text.append('text:tspan')
   .attr("font-size", "3em")
   .attr('x', 0)
   .attr('dy', 5)
-  .attr("fill", "white")
+  .attr("fill", "black")
   
 var sub_tspan = center_text.append('text:tspan')
   .attr('id', 'sub-center-text')
   .attr("font-size", "1.0em")
   .attr('x', 0)
   .attr('dy', 25)
-  .attr("fill", "white")
+  .attr("fill", "black")
 
 // Add the polylines between chart and labels:
 var polylines = svg.selectAll('allPolylines')
