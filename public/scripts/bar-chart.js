@@ -1,13 +1,13 @@
 function render_bar_chart(result){
 
     let content = result.content.slice(1,11);
-    let gender = result.gender;
+    let gender = result.gender.charAt(0).toUpperCase() + result.gender.slice(1);
 
     var width = 0.9*window.innerWidth;
     var height = 0.7*window.innerHeight;
     var transition_duration = 200;
 
-    var margin = {top: 0, right: width/4, bottom: 50, left: width/3, bottom_label_buffer: 70},
+    var margin = {top: 80, right: width/4, bottom: 50, left: width/3, bottom_label_buffer: 80},
     width = width - margin.left - margin.right,
     height = height - margin.top - margin.bottom;
 
@@ -22,6 +22,16 @@ function render_bar_chart(result){
     var svg   = graph.append("g")
                      .attr("transform",
                           "translate(" + margin.left + "," + margin.top + ")");
+    
+    //Title
+    svg.append("text")
+        .attr("class", "chart-title")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top/2))
+        .attr("text-anchor", "middle")   
+        .text(`Top 10 Most Highly Paid Departments for ${gender} Faculty`)
+        .attr('font-size', '2em');
+
     // Add X axis
     var x = d3.scaleLinear()
         .domain([0, d3.max(content, function(d){ return d.sum_renumeration})])
@@ -95,7 +105,7 @@ function render_bar_chart(result){
     svg.append("text")             
       .attr("transform",
             "translate(" + (width/2) + " ," + 
-                           (height + margin.top + margin.bottom_label_buffer) + ")")
+                           (height + margin.top) + ")")
       .style("text-anchor", "middle")
       .text("Renumeration (CAD$)")
       .attr('font-size', '1.0em');;
