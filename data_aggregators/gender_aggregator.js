@@ -4,7 +4,6 @@ module.exports = function (df) {
 
     let res = groupedDF.aggregate(group => group.stat.sum('renumeration')).rename('aggregation', 'sum_renumeration');
     res.sortBy('sum_renumeration', false);
-    res.show()
 
     let collection = res.toCollection();
     let total = 0;

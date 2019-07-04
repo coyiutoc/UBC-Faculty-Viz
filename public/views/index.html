@@ -4,14 +4,23 @@
   <!-- Load d3.js -->
   <script src="https://d3js.org/d3.v4.js"></script>
 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
   <link href="https://fonts.googleapis.com/css?family=Nunito|Roboto&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/styles/styles.css" type="text/css">
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script type="text/javascript" src="/scripts/bar-chart.js"></script>
 </head>
 
 <body>
+
+  <div id="modal" class="overlay">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <div class="overlay-content">
+      <div id="bar-graph"></div>
+    </div>
+  </div>
 
   <!-- Create a div where the graph will take place -->
   <div id="graph-container">
@@ -20,6 +29,8 @@
 
 </body>
 <script>
+
+var url = window.location.origin;
 
 // set the dimensions and margins of the graph
 var width = 0.8*window.innerWidth;
@@ -39,41 +50,54 @@ var svg = d3.select("#graph")
               .append("g")
                 .attr("transform", "translate(" + width*1.2 / 2 + "," + height*1.2 / 2 + ")");
 
+var center_circle = svg.append("circle")
+   .attr("id", "bg-circle")
+   .attr("r", radius*1.1)
+   .attr("fill", "#1c1c1c")
+   .attr('stroke', "#383838")
+   .attr('stroke-width', "2px")
+
+var bg_circle = svg.append("circle")
+   .attr("id", "inner-circle")
+   .attr("r", radius*0.40)
+   .attr("fill", "black");
+
 // Extract data
 var all_data = <%- JSON.stringify(results) %>;
 var data = all_data.splice(0,4);
 var total = all_data[all_data.length-1].total;
 
-// set the color scale
+// Color generator
 var color_gen = d3.scaleOrdinal()
   .domain(data)
   .range(["#538DD3", "#F3DD3F", "#81AB9D", "#CB98E1"]);
 
-// Compute the position of each group on the pie:
+// Angle generator
 var angle_gen = d3.pie()
                   .value(function(d) {
                      return d.sum_renumeration; 
                    })
                   .padAngle(0.02);
-//var data_ready = angle_gen(d3.entries(data))
 var data_ready = angle_gen(data);
 
-
-// The arc generator
+// Arc generator
 var arc = d3.arc()
   .innerRadius(radius * 0.5)         // This is the size of the donut hole
   .outerRadius(radius)
 
-// Another arc that won't be drawn. Just for labels positionning
+// Arc generator for drawing labels
 var outerArc = d3.arc()
   .innerRadius(radius * 0.9)
   .outerRadius(radius)
 
+// Arc generator for hovered slice
 var hoverArc = d3.arc()
   .innerRadius(radius * 0.5)
   .outerRadius(radius * 1.10)
 
-// Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+// ------------------------------------------------------------------------
+// SLICES =================================================================
+
 var slices = svg.selectAll('.slice')
                 .data(data_ready)
                 .enter()
@@ -99,8 +123,8 @@ var slices = svg.selectAll('.slice')
                   $('#main-center-text').text(percent + "%");
                   $('#sub-center-text').text("CAD$ " + sum);
 
-                  d3.select('#main-center-text').transition().duration(1000).attr('fill', color_gen(i));
-                  d3.select('#sub-center-text').transition().duration(1000).attr('fill', "white");
+                  d3.select('#inner-circle').transition().duration(1000).attr('fill', color_gen(i)).attr('fill-opacity', 1)
+
                 })
                 .on("mouseout", function(d) {
 
@@ -109,9 +133,15 @@ var slices = svg.selectAll('.slice')
                     .attr("d", arc)
                     .style("opacity", 0.7);
 
-                  d3.select('#main-center-text').transition().duration(1000).attr('fill', "black");
-                  d3.select('#sub-center-text').transition().duration(1000).attr('fill', "black");
+                  d3.select('#inner-circle').transition().duration(1000).attr('fill', "black");
+
+                })
+                .on("click", function(d) {
+                  openModal(d.data.gender);
                 });
+
+// ------------------------------------------------------------------------
+// TEXT SVG ===============================================================
 
 var center_text = svg.append("text")
  .attr("id", "center-text")
@@ -131,7 +161,9 @@ var sub_tspan = center_text.append('text:tspan')
   .attr('dy', 25)
   .attr("fill", "black")
 
-// Add the polylines between chart and labels:
+// ------------------------------------------------------------------------
+// LABELS =================================================================
+
 var polylines = svg.selectAll('allPolylines')
                   .data(data_ready)
                   .enter()
@@ -152,7 +184,6 @@ var polylines = svg.selectAll('allPolylines')
                     .attr('r', 20)
                     .attr('fill', 'white')
 
-// Add the polylines between chart and labels:
 var labels = svg.selectAll('allLabels')
                 .data(data_ready)
                 .enter()
@@ -174,6 +205,26 @@ var labels = svg.selectAll('allLabels')
 
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function openModal(gender) {
+
+  let address = url + "/faculty/" + gender;
+  $.ajax({
+    type: "GET",
+    url: address,
+    cache: false,
+    success: function(get_result){
+      $("#bar-graph").empty();
+      console.log(get_result);
+      render_bar_chart(get_result);
+      document.getElementById("modal").style.width = "100%";
+    }
+  });
+}
+
+function closeNav() {
+  document.getElementById("modal").style.width = "0%";
 }
 
 </script>

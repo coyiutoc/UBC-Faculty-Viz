@@ -5,13 +5,16 @@ const app = express();
 
 const csv = require('csv-parser')
 const fs = require('fs')
-const results = [];
 
-const parsed_results = [];
-var r = [];
+var results = [];
+var df = null;
+
+var parsed_results = [];
+var main_results = [];
 
 var aggregate_by_gender = require('./data_aggregators/gender_aggregator.js');
- 
+var aggregate_gender_by_faculty = require('./data_aggregators/faculty_aggregator.js');
+
 fs.createReadStream('data/final_dataset.csv')
   .pipe(csv())
   .on('data', (data) => results.push(data))
@@ -22,7 +25,16 @@ fs.createReadStream('data/final_dataset.csv')
     	obj.name = row.name;
     	obj.renumeration = Number(row.renumeration.replace(/,/g, ""));
     	obj.expenses = Number(row.expenses.replace(/,/g, ""));
-    	obj.department = row.department;
+    	if (row.department === "University of British Columbia Sauder School of Business") {
+    		obj.department = "Sauder School of Business";
+    	} 
+    	else if (row.department === "Irving K. Barber School of Arts & Sciences Unit 7 - UBC Okanagan") {
+    		obj.department = "Irving K. Barber School of Arts & Sciences";
+    	}
+    	else {
+    		obj.department = row.department;
+    	}
+    	obj.position = row.position;
 
     	if (row.gender === "mostly_female") {
     		obj.gender = "female";
@@ -39,12 +51,10 @@ fs.createReadStream('data/final_dataset.csv')
     	parsed_results.push(obj);
     }
 
-    const df = new DataFrame(parsed_results, ['name', 'renumeration', 'expenses', 'position', 'department', 'gender']);
+    df = new DataFrame(parsed_results, ['name', 'renumeration', 'expenses', 'position', 'department', 'gender']);
 
-    r = aggregate_by_gender(df);
-    console.log(r);
+    main_results = aggregate_by_gender(df);
   });
-
 
 app.use(express.static(__dirname + '/public'));
 
@@ -53,7 +63,16 @@ app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
 app.get('/', (req, res) => {
-  res.render('index.html', {results: r});
+  res.render('index.html', {results: main_results});
+});
+
+app.get("/faculty/:gender",function(request, response){
+    let gender = request.params.gender;
+
+    let result = aggregate_gender_by_faculty(df, gender);
+    let obj = { "gender" : gender, "content" : result};
+
+    response.send(obj);
 });
 
 app.listen(8080, () => {
