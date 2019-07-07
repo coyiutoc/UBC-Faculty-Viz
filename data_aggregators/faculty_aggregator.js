@@ -15,14 +15,36 @@ module.exports = function (df, gender) {
 
     // Group by dept
     const groupedDF_dept = target_df.groupBy('department');
+    const counts = target_df.groupBy('department').aggregate((group) => group.count()).toDict();
+    let dept_dict = counts["department"];
+    let counts_dict = counts["aggregation"];
 
     // Summate across dept
-    let res = groupedDF_dept.aggregate(group => group.stat.sum('renumeration')).rename('aggregation', 'sum_renumeration');
-    res.sortBy('sum_renumeration', false);
+    let res = groupedDF_dept.aggregate(group => group.stat.sum('renumeration')).rename('aggregation', 'value');
 
-    res = res.sortBy('sum_renumeration', true);
+    // Getting top 10 by sum_renumeration
+    res = res.sortBy('value', true);
+    res = res.toCollection();
 
-    res = res.toCollection().slice(1,11);
+    // for (let row of res) {
+    //     let department = row.department;
+    //     let idx = dept_dict.indexOf(department);
+    //     let count_val = counts_dict[idx];
 
-    return res;
+    //     row.avg = row.sum_renumeration/count_val;
+    // }
+
+    // res = res.sort( function(a, b) {
+    //     if (a.avg < b.avg){
+    //         return 1;
+    //     }
+    //     if (a.avg > b.avg){
+    //         return -1;
+    //     }
+    //     return 0;
+    // });
+
+    // console.log(res);
+
+    return res.slice(1, 11);
 }

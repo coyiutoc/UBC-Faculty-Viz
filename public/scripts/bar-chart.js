@@ -1,6 +1,23 @@
 function render_bar_chart(result){
 
-    let content = result.by_department;
+    $('#dept-button').on("click", function(){ 
+       $(this).attr('class', 'btn btn-dark active toggle-button');
+       $('#pos-button').attr('class', 'btn btn-outline-dark toggle-button');
+       $('#bar-chart-title').html("Top 10 Most Highly Paid Departments");
+       $('#bar-graph-x-label').html("Sum Renumeration ($CAD)");
+       update("department");
+    });
+
+    $('#pos-button').on("click", function(){ 
+       $(this).attr('class', 'btn btn-dark active toggle-button');
+       $('#dept-button').attr('class', 'btn btn-outline-dark toggle-button');
+       $('#bar-chart-title').html("Top 10 Most Highly Paid Positions");
+       $('#bar-graph-x-label').html("Average Salary ($CAD)");
+       update("position");
+    });
+
+    let dept_content = result.by_department;
+    let pos_content = result.by_position;
     let gender = result.gender.toUpperCase();
 
     var width = window.innerWidth;
@@ -10,19 +27,15 @@ function render_bar_chart(result){
     var gender_colors = {male: "#8cdcda", androgynous: "#d9d9d9", unknown: "#afd977", female: "#f16970"};
 
     $("#bar-chart-header").html(`
-        <h2>Top 10 Most Highly Paid Departments</h2>
+        <h2><div id='bar-chart-title'>Top 10 Most Highly Paid Departments</div></h2>
         <h3><span style='background-color: ${gender_highlight_colors[gender.toLowerCase()]}'><b>${gender}</b> GENDER FACULTY</span></h3>
     `);
 
+    $('#bar-graph-x-label').html("Sum Renumeration ($CAD)");
+    
     var margin = {top: window.innerHeight*0.05, right: width/4, bottom: window.innerHeight*0.05, left: width/3, bottom_label_buffer: window.innerHeight*0.05},
     width = width - margin.left - margin.right,
     height = height - margin.top - margin.bottom;
-
-    var sequentialScale = d3.scaleLinear()
-                            .domain([d3.max(content, function(d){ return d.sum_renumeration}), d3.min(content, function(d){ return d.sum_renumeration})])
-                            .interpolate(d3.interpolateHcl)
-                            .range([d3.hcl("#000000"), d3.hcl(gender_colors[gender.toLowerCase()])]);
-
 
     var graph = d3.select("#bar-graph")
                   .append("svg")
@@ -32,85 +45,120 @@ function render_bar_chart(result){
                      .attr("transform",
                            "translate(" + margin.left + "," + margin.top + ")");
 
-    // Add X axis
+    // X axis scale
     var x = d3.scaleLinear()
-        .domain([0, d3.max(content, function(d){ return d.sum_renumeration})])
+        // .domain([0, d3.max(content, function(d){ return d.sum_renumeration})])
         .range([ 0, width]);
-    
-    // Format x-axis labels
-    var x_axis = svg.append("g")
-        .attr('id', 'x-axis')
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
-        x_axis.selectAll("text")
-          .attr("transform", "translate(-10,0)rotate(-45)")
-          .attr("class", "x-axis-label")
-          .style("text-anchor", "end")
-          .attr('font-size', '1.0em');
 
-    // Y axis
+    // Y axis scale
     var y = d3.scaleBand()
         .range([ 0, height ])
-        .domain(content.map(function(d) { return d.department; }))
+        //.domain(content.map(function(d) { return d.department; }))
         .padding(.1);
 
-    // Add y-axis
-    var y_axis = svg.append("g")
-        .attr('id', 'y-axis')
-        .call(d3.axisLeft(y))
-        .selectAll(".tick")
-            .each(function(d){
+
+    function update(type) {
+
+        let content = type === "department" ? dept_content : pos_content;
+
+        // Set axes' domain
+        y.domain(content.map(function(d) { 
+            if (type === "department") {
+                return d.department;
+            }
+            return d.position;}))
+        x.domain([0, d3.max(content, function(d){ return d.value})])
+
+        // Remove first
+        $("#x-axis").remove();
+        $("#y-axis").remove();
+
+        // Add x-axis labels
+        var x_axis = svg.append("g")
+            .attr('id', 'x-axis')
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+            x_axis.selectAll("text")
+              .attr("transform", "translate(-10,0)rotate(-45)")
+              .attr("class", "x-axis-label")
+              .style("text-anchor", "end")
+              .attr('font-size', '1.0em');
+
+        // Add y-axis labels
+        var y_axis = svg.append("g")
+            .attr('id', 'y-axis')
+            .call(d3.axisLeft(y))
+            .selectAll(".tick")
+                .each(function(d){
+                d3.select(this)
+                  .attr("opacity", 0)
+                  .select("text")
+                   .attr('font-size', '1.5em')
+                });
+
+        // Transition effect on y-axis ticks
+        d3.selectAll('#y-axis .tick').each(function (d, i) {
             d3.select(this)
-              .attr("opacity", 0)
-              .select("text")
-               .attr('font-size', '1.5em')
-            });
-
-    // Transition effect on y-axis ticks
-    d3.selectAll('#y-axis .tick').each(function (d, i) {
-        d3.select(this)
-          .transition()
-          .duration(transition_duration)
-          .delay(function (d){
-            return i * transition_duration;
-          })
-          .attr("opacity", 1)
-    });
-
-    // Remove y-axis paths
-    $("#y-axis .domain").remove();
-    //$("#x-axis").remove();
-
-    // Outer g container for bars
-    var g_bars = svg.selectAll(".bar")
-        .data(content)
-        .enter()
-        .append("g");
-
-    // Add bars to each g container
-    var bars = g_bars.append("rect")
-          .attr("class", "bar")
-          .attr("width", 0)
-          .attr("y", function(d) { 
-            return y(d.department); 
-          })
-          .attr("height", y.bandwidth())
-
-    // Add transition on bars
-    bars.transition()
-            .duration(transition_duration)
-            .delay(function (d, i) {
+              .transition()
+              .duration(transition_duration)
+              .delay(function (d){
                 return i * transition_duration;
-            })
-          .attr("width", function(d) {
-            return x(d.sum_renumeration); 
-          })
-          .attr("fill", function(d) {
-            return sequentialScale(d.sum_renumeration)
-          })
-          .attr("y", function(d) { 
-            return y(d.department); 
-          })
+              })
+              .attr("opacity", 1)
+        });
+
+        // Remove y-axis paths
+        $("#y-axis .domain").remove();
+
+        // Color scale
+        var sequentialScale = d3.scaleLinear()
+                        .domain([d3.max(content, function(d){ return d.value}), d3.min(content, function(d){ return d.value})])
+                        .interpolate(d3.interpolateHcl)
+                        .range([d3.hcl("#000000"), d3.hcl(gender_colors[gender.toLowerCase()])]);
+
+        // Outer g container for bars
+        var g_bars = svg.selectAll(".bar")
+            .remove()
+            .exit()
+            .data(content)
+            .enter()
+            .append("g");
+
+        // Add bars to each g container
+        var bars = g_bars.append("rect")
+              .attr("class", "bar")
+              .attr("width", 0)
+              .attr("y", function(d) {
+                if (type === "department") {
+                    return y(d.department)
+                } else {
+                    return y(d.position)
+                }; 
+              })
+              .attr("height", y.bandwidth())
+
+        // Add transition on bars
+        bars.transition()
+                .duration(transition_duration)
+                .delay(function (d, i) {
+                    return i * transition_duration;
+                })
+              .attr("width", function(d) {
+                return x(d.value); 
+              })
+              .attr("fill", function(d) {
+                return sequentialScale(d.value)
+              })
+              .attr("y", function(d) { 
+                if (type === "department") {
+                    return y(d.department)
+                } else {
+                    return y(d.position)
+                }; 
+              })
+    }
+
+    update("department");
        
     // Add text on g container 
     // g_bars.append("text")

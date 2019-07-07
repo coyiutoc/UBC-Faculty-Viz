@@ -26,20 +26,18 @@
   <div id="modal" class="overlay">
     <span float="left">
       <div class="btn-group toggle-container" role="group" aria-label="Basic example">
-        <button id = "dept-button" type="radio" class="btn btn-primary active">DEPARTMENT</button>
-        <button id = "pos-button" type="radio" class="btn btn-outline-danger">POSITION</button>
+        <button id = "dept-button" type="radio" class="btn btn-dark active toggle-button">DEPARTMENT</button>
+        <button id = "pos-button" type="radio" class="btn btn-outline-dark toggle-button">POSITION</button>
       </div>
     </span>
     <span float="right"><a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a></span>
     <div class="overlay-content">
       <div id="bar-chart-header">
-        <h2>Top 10 Most Highly Paid Departments</h2>
-        <h3>MALE GENDER FACULTY</h3>
       </div>
       <div id="bar-graph"></div>
-      <div id="bar-graph-x-label">
-        <h4>Sum Renumeration ($CAD)</h4>
-      </div>
+      <h4><div id="bar-graph-x-label">
+        Sum Renumeration ($CAD)
+      </div></h4>
     </div>
   </div>
 
@@ -49,6 +47,8 @@
         <div id="graph-container">
           <div id="graph"></div>
         </div>
+        <!-- <div id="container" class="svg-container">
+        </div> -->
       </div>
       <div class="col col-md-4 col-sm-12 right-column">
         <div class="right-body">
@@ -71,16 +71,6 @@
 </body>
 <script>
 
-$('#dept-button').on("click", function(){ 
-   $(this).attr('class', 'btn btn-primary active');
-   $('#pos-button').attr('class', 'btn btn-outline-danger');
-});
-
-$('#pos-button').on("click", function(){ 
-   $(this).attr('class', 'btn btn-danger active');
-   $('#dept-button').attr('class', 'btn btn-outline-primary');
-});
-
 var url = window.location.origin;
 
 // set the dimensions and margins of the graph
@@ -91,7 +81,7 @@ var margin = 20;
 // The radius of the pieplot is half the width or half the height (smallest one). I substract a bit of margin.
 var radius = Math.min(width, height) / 2 - margin
 
-// append the svg object to the div called 'my_dataviz'
+//append the svg object 
 var svg = d3.select("#graph")
             .append("svg")
               .attr("width", width*1.2)
@@ -100,6 +90,14 @@ var svg = d3.select("#graph")
               .style("margin", "auto")
               .append("g")
                 .attr("transform", "translate(" + width*1.2 / 2 + "," + height*1.2 / 2 + ")");
+
+// var svg = d3.select("#container")
+//   .append("svg")
+//   .attr("preserveAspectRatio", "xMinYMin meet")
+//   .attr("viewBox", `0 0 ${width*1.2} ${height*1.2}`)
+//   .classed("svg-content", true)
+//   .append("g")
+//    .attr("transform", "translate(" + width*1.2/2 + "," + height*1.2/2 + ")");
 
 var center_circle = svg.append("circle")
    .attr("id", "bg-circle")
@@ -266,7 +264,6 @@ function openModal(gender) {
     cache: false,
     success: function(get_result){
       $("#bar-graph").empty();
-      console.log(get_result);
       render_bar_chart(get_result);
       document.getElementById("modal").style.width = "100%";
     }
@@ -275,6 +272,10 @@ function openModal(gender) {
 
 function closeNav() {
   document.getElementById("modal").style.width = "0%";
+
+  // Reset buttons to be on dept 
+  $('#dept-button').attr('class', 'btn btn-dark active toggle-button');
+  $('#pos-button').attr('class', 'btn btn-outline-dark toggle-button');
 }
 
 </script>

@@ -92,13 +92,22 @@ text.y-axis-label {
 	background-color: white;
 }
 
-.right-body {
-	width: 20vw;
-	max-height: 75vh;
-	margin-right: 5vw;
-	margin-left: 5vw;
-	margin-top: 15vh;
-	margin-bottom: 10vh;
+@media screen and (max-width: 990px) {
+  .right-body {
+  	text-align: center;
+	margin: 10vh;
+  }
+}
+
+@media screen and (min-width: 990px) {
+	.right-body {
+		width: 20vw;
+		max-height: 75vh;
+		margin-right: 5vw;
+		margin-left: 5vw;
+		margin-top: 15vh;
+		margin-bottom: 10vh;
+	}
 }
 
 #graph-container {
@@ -169,4 +178,23 @@ text.y-axis-label {
 
 .tick line{
   visibility:hidden;
+}
+
+.toggle-button {
+	width: 10vw !important;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    vertical-align: top;
+    overflow: hidden;
+}
+.svg-content {
+    display: inline-block;
+    position: absolute;
+    top: 10%;
+    left: 0;
 }
