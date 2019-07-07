@@ -1,9 +1,5 @@
 a.body-link {
   color: black;
-/*  font-weight: bolder;
-  text-decoration-line: underline;
-  text-decoration-color: #f16970;*/
-
   background:
      linear-gradient(
        to bottom, #f48a90 0%,
@@ -33,34 +29,75 @@ html, body {
 h1 {
 	color: black;
 	font-family: 'Lato', sans-serif;
-	font-size: 7em;
+	font-size: 15vh;
 	line-height: 0.8em;
 }
 
 h2 {
 	color: black;
 	font-family: 'Lato', sans-serif;
-	font-size: 1.5em;
+	font-size: 5vh;
+	font-weight: bold;
+}
+
+h3 {
+	color: black;
+	font-family: 'Nunito', sans-serif;
+	font-size: 2.7vh;
+	font-weight: normal;
+}
+
+h4{
+	color: black;
+	font-family: 'Nunito', sans-serif;
+	font-size: 2.5vh;
 	font-weight: bold;
 }
 
 text {
 	font-family: 'Nunito', sans-serif;
+	font-weight: bolder;
 }
 
 text.chart-title {
 	font-family: 'Lato', sans-serif;
 }
 
+text.pie-label {
+	font-family: 'Lato', sans-serif;
+	fill: WHITE;
+	font-size: 2.7vh;
+	font-weight: bold;
+}
+
+text.x-axis-label {
+	font-weight:normal;
+}
+
+text.y-axis-label {
+	fill: black;
+}
+
+#main-center-text {
+	font-family: 'Lato', sans-serif;
+	font-size: 6vh;
+}
+
+#sub-center-text {
+	font-family: 'Lato', sans-serif;
+	font-size: 2vh;
+}
+
 .right-column {
-	padding-left: 5vw;
 	background-color: white;
 }
 
 .right-body {
-	max-height: 80vh;
-	margin-right: 10vw;
-	margin-top: 10vh;
+	width: 20vw;
+	max-height: 75vh;
+	margin-right: 5vw;
+	margin-left: 5vw;
+	margin-top: 15vh;
 	margin-bottom: 10vh;
 }
 
@@ -71,88 +108,6 @@ text.chart-title {
   	justify-content: center;
 }
 
-#graph {
-	/*background-color: #B10DC9;*/
-}
-
-@-webkit-keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@-moz-keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.fade-in {
-  opacity: 0;
-  -webkit-animation: fadeIn ease-in 1 -moz-animation: fadeIn ease-in 1;
-  animation: fadeIn ease-in 1;
-  -webkit-animation-fill-mode: forwards;
-  -moz-animation-fill-mode: forwards;
-  animation-fill-mode: forwards;
-  -webkit-animation-duration: 1s;
-  -moz-animation-duration: 1s;
-  animation-duration: 1s;
-}
-
-@-webkit-keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@-moz-keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-.fade-out {
-  opacity: 1;
-  -webkit-animation: fadeOut ease-in 1 -moz-animation: fadeOut ease-in 1;
-  animation: fadeOut ease-in 1;
-  -webkit-animation-fill-mode: forwards;
-  -moz-animation-fill-mode: forwards;
-  animation-fill-mode: forwards;
-  -webkit-animation-duration: 1s;
-  -moz-animation-duration: 1s;
-  animation-duration: 1s;
-}
-
 .overlay {
   height: 100%;
   width: 0;
@@ -161,7 +116,6 @@ text.chart-title {
   top: 0;
   left: 0;
   background-color: rgb(255,255,255);
-  background-color: rgba(255,255,255, 1);
   overflow-x: hidden;
   transition: 0.5s;
 }
@@ -171,11 +125,11 @@ text.chart-title {
   top: 10%;
   width: 100%;
   text-align: center;
-  margin-top: 30px;
+  transition: 0.5s;
 }
 
 .overlay a {
-  padding: 8px;
+  padding: 5px;
   text-decoration: none;
   font-size: 36px;
   color: #818181;
@@ -189,10 +143,19 @@ text.chart-title {
 
 .overlay .closebtn {
   position: absolute;
-  top: 20px;
+  top: 0px;
   right: 45px;
   font-size: 60px;
   color: black;
+}
+
+.overlay .toggle-container {
+  position: absolute;
+  padding: 24px;
+  left: 45px;
+  font-size: 60px;
+  color: black;
+  transition: 0.3s;
 }
 
 @media screen and (max-height: 450px) {

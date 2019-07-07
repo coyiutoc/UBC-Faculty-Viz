@@ -8,7 +8,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
   <!-- Fonts --->
-  <link href="https://fonts.googleapis.com/css?family=Nunito|Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
 
@@ -21,30 +21,42 @@
 
   <script type="text/javascript" src="/scripts/bar-chart.js"></script>
 </head>
-
 <body>
 
   <div id="modal" class="overlay">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <span float="left">
+      <div class="btn-group toggle-container" role="group" aria-label="Basic example">
+        <button id = "dept-button" type="radio" class="btn btn-primary active">DEPARTMENT</button>
+        <button id = "pos-button" type="radio" class="btn btn-outline-danger">POSITION</button>
+      </div>
+    </span>
+    <span float="right"><a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a></span>
     <div class="overlay-content">
+      <div id="bar-chart-header">
+        <h2>Top 10 Most Highly Paid Departments</h2>
+        <h3>MALE GENDER FACULTY</h3>
+      </div>
       <div id="bar-graph"></div>
+      <div id="bar-graph-x-label">
+        <h4>Sum Renumeration ($CAD)</h4>
+      </div>
     </div>
   </div>
 
   <div class="container-fluid h-100">
     <div class="row h-100">
-      <div class="col col-lg-8">
+      <div class="col col-md-8 col-sm-12">
         <div id="graph-container">
           <div id="graph"></div>
         </div>
       </div>
-      <div class="col col-lg-4 right-column">
+      <div class="col col-md-4 col-sm-12 right-column">
         <div class="right-body">
             <h1>UBC 2018</h1>
-            <h2>Faculty Renumeration by Gender</h2>
-            <br>
-            Data was extracted from the <a class="body-link" href="https://finance.ubc.ca/budgeting-reporting/financial-reports">2018
-            financial report</a> and <a class="body-link" href="directory.ubc.ca">faculty directory</a> to generate these graphs.
+            <h3>FACULTY RENUMERATION</h3>
+            <hr>
+            5096 entries were extracted and aggregated from the <a class="body-link" href="https://finance.ubc.ca/budgeting-reporting/financial-reports">2018
+            financial report</a> and <a class="body-link" href="directory.ubc.ca">faculty directory</a>.
             <br>
             <br>
             <span style="background-color: #b1e7e5"><b>Hover</b></span> over a slice to view the total renumeration by gender.
@@ -59,11 +71,21 @@
 </body>
 <script>
 
+$('#dept-button').on("click", function(){ 
+   $(this).attr('class', 'btn btn-primary active');
+   $('#pos-button').attr('class', 'btn btn-outline-danger');
+});
+
+$('#pos-button').on("click", function(){ 
+   $(this).attr('class', 'btn btn-danger active');
+   $('#dept-button').attr('class', 'btn btn-outline-primary');
+});
+
 var url = window.location.origin;
 
 // set the dimensions and margins of the graph
-var width = 0.8*window.innerWidth;
-var height = 0.8*window.innerHeight;
+var width = 0.75*window.innerWidth;
+var height = 0.75*window.innerHeight;
 var margin = 20;
 
 // The radius of the pieplot is half the width or half the height (smallest one). I substract a bit of margin.
@@ -100,7 +122,7 @@ var total = all_data[all_data.length-1].total;
 var color_gen = d3.scaleOrdinal()
   .domain(data)
   .range(["#8cdcda", "#ffffff", "#afd977", "#f16970"]);
-
+          // male    // andro  // unknown  //female
 // Angle generator
 var angle_gen = d3.pie()
                   .value(function(d) {
@@ -111,7 +133,7 @@ var data_ready = angle_gen(data);
 
 // Arc generator
 var arc = d3.arc()
-  .innerRadius(radius * 0.5)         // This is the size of the donut hole
+  .innerRadius(radius * 0.5) // This is the size of the donut hole
   .outerRadius(radius)
 
 // Arc generator for drawing labels
@@ -178,14 +200,12 @@ var center_text = svg.append("text")
 
 var main_tspan = center_text.append('text:tspan')
   .attr('id', 'main-center-text')
-  .attr("font-size", "3em")
   .attr('x', 0)
   .attr('dy', 5)
   .attr("fill", "black")
   
 var sub_tspan = center_text.append('text:tspan')
   .attr('id', 'sub-center-text')
-  .attr("font-size", "1.0em")
   .attr('x', 0)
   .attr('dy', 25)
   .attr("fill", "black")
@@ -213,11 +233,12 @@ var polylines = svg.selectAll('allPolylines')
                     .attr('r', 20)
                     .attr('fill', 'white')
 
-var labels = svg.selectAll('allLabels')
+var labels = svg.selectAll('pie-labels')
                 .data(data_ready)
                 .enter()
                 .append('text')
-                  .text( function(d) { return d.data.gender } )
+                  .attr('class', 'pie-label')
+                  .text( function(d) { return d.data.gender.toUpperCase() } )
                   .attr('transform', function(d) {
                       var pos = outerArc.centroid(d);
                       var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
@@ -229,8 +250,8 @@ var labels = svg.selectAll('allLabels')
                       var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
                       return (midangle < Math.PI ? 'start' : 'end')
                   })
-                  .attr('fill', 'white')
-                  .attr('font-size', '1.5em')
+                  // .attr('fill', 'white')
+                  // .attr('font-size', '2.5vh')
 
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -238,7 +259,7 @@ function numberWithCommas(x) {
 
 function openModal(gender) {
 
-  let address = url + "/faculty/" + gender;
+  let address = url + "/aggregate/" + gender;
   $.ajax({
     type: "GET",
     url: address,

@@ -14,6 +14,7 @@ var main_results = [];
 
 var aggregate_by_gender = require('./data_aggregators/gender_aggregator.js');
 var aggregate_gender_by_faculty = require('./data_aggregators/faculty_aggregator.js');
+var aggregate_gender_by_position = require('./data_aggregators/position_aggregator.js');
 
 fs.createReadStream('data/final_dataset.csv')
   .pipe(csv())
@@ -31,10 +32,18 @@ fs.createReadStream('data/final_dataset.csv')
     	else if (row.department === "Irving K. Barber School of Arts & Sciences Unit 7 - UBC Okanagan") {
     		obj.department = "Irving K. Barber School of Arts & Sciences";
     	}
+    	else if (row.department === "and Special Education (ECPS) Educational and Counselling Psychology") {
+    		obj.department = "Educational and Counselling Psychology";
+    	}
     	else {
     		obj.department = row.department;
     	}
-    	obj.position = row.position;
+
+    	// if (row.position === "Professor " || row.position === "Pr"){
+    	// 	obj.position = "Professor";
+    	// } else {
+    		obj.position = row.position.trim();
+    	//}
 
     	if (row.gender === "mostly_female") {
     		obj.gender = "female";
@@ -66,11 +75,12 @@ app.get('/', (req, res) => {
   res.render('index.html', {results: main_results});
 });
 
-app.get("/faculty/:gender",function(request, response){
+app.get("/aggregate/:gender",function(request, response){
     let gender = request.params.gender;
 
-    let result = aggregate_gender_by_faculty(df, gender);
-    let obj = { "gender" : gender, "content" : result};
+    let dept_result = aggregate_gender_by_faculty(df, gender);
+    let pos_result = aggregate_gender_by_position(df, gender);
+    let obj = { "gender" : gender, "by_department" : dept_result, "by_position" : pos_result};
 
     response.send(obj);
 });

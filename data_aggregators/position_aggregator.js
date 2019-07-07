@@ -14,7 +14,7 @@ module.exports = function (df, gender) {
     }
 
     // Group by dept
-    const groupedDF_dept = target_df.groupBy('department');
+    const groupedDF_dept = target_df.groupBy('position');
 
     // Summate across dept
     let res = groupedDF_dept.aggregate(group => group.stat.sum('renumeration')).rename('aggregation', 'sum_renumeration');
@@ -22,7 +22,15 @@ module.exports = function (df, gender) {
 
     res = res.sortBy('sum_renumeration', true);
 
-    res = res.toCollection().slice(1,11);
+    res = res.toCollection().slice(0,11);
 
-    return res;
+    let final_res = [];
+
+    for (let row of res) {
+        if (row.position !== ""){
+            final_res.push(row);
+        }
+    }
+
+    return final_res;
 }

@@ -1,19 +1,28 @@
 function render_bar_chart(result){
 
-    let content = result.content.slice(1,11);
-    let gender = result.gender.charAt(0).toUpperCase() + result.gender.slice(1);
+    let content = result.by_department;
+    let gender = result.gender.toUpperCase();
 
-    var width = 0.9*window.innerWidth;
-    var height = 0.7*window.innerHeight;
+    var width = window.innerWidth;
+    var height = 0.65*window.innerHeight;
     var transition_duration = 200;
+    var gender_highlight_colors = {male: "#b1e7e5", androgynous: "#d9d9d9", unknown: "#d0e9af", female: "#f6a2a6"};
+    var gender_colors = {male: "#8cdcda", androgynous: "#d9d9d9", unknown: "#afd977", female: "#f16970"};
 
-    var margin = {top: 80, right: width/4, bottom: 50, left: width/3, bottom_label_buffer: 80},
+    $("#bar-chart-header").html(`
+        <h2>Top 10 Most Highly Paid Departments</h2>
+        <h3><span style='background-color: ${gender_highlight_colors[gender.toLowerCase()]}'><b>${gender}</b> GENDER FACULTY</span></h3>
+    `);
+
+    var margin = {top: window.innerHeight*0.05, right: width/4, bottom: window.innerHeight*0.05, left: width/3, bottom_label_buffer: window.innerHeight*0.05},
     width = width - margin.left - margin.right,
     height = height - margin.top - margin.bottom;
 
-    var sequentialScale = d3.scaleSequential()
-                            .domain([d3.max(content, function(d){ return d.sum_renumeration}), 0])
-                            .interpolator(d3.interpolateMagma);
+    var sequentialScale = d3.scaleLinear()
+                            .domain([d3.max(content, function(d){ return d.sum_renumeration}), d3.min(content, function(d){ return d.sum_renumeration})])
+                            .interpolate(d3.interpolateHcl)
+                            .range([d3.hcl("#000000"), d3.hcl(gender_colors[gender.toLowerCase()])]);
+
 
     var graph = d3.select("#bar-graph")
                   .append("svg")
@@ -21,16 +30,7 @@ function render_bar_chart(result){
                     .attr("height", height + margin.top + margin.bottom + margin.bottom_label_buffer)
     var svg   = graph.append("g")
                      .attr("transform",
-                          "translate(" + margin.left + "," + margin.top + ")");
-    
-    //Title
-    svg.append("text")
-        .attr("class", "chart-title")
-        .attr("x", (width / 2))             
-        .attr("y", 0 - (margin.top/2))
-        .attr("text-anchor", "middle")   
-        .text(`Top 10 Most Highly Paid Departments for ${gender} Faculty`)
-        .attr('font-size', '2em');
+                           "translate(" + margin.left + "," + margin.top + ")");
 
     // Add X axis
     var x = d3.scaleLinear()
@@ -38,11 +38,13 @@ function render_bar_chart(result){
         .range([ 0, width]);
     
     // Format x-axis labels
-    svg.append("g")
+    var x_axis = svg.append("g")
+        .attr('id', 'x-axis')
         .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x))
-        .selectAll("text")
+        .call(d3.axisBottom(x));
+        x_axis.selectAll("text")
           .attr("transform", "translate(-10,0)rotate(-45)")
+          .attr("class", "x-axis-label")
           .style("text-anchor", "end")
           .attr('font-size', '1.0em');
 
@@ -51,7 +53,9 @@ function render_bar_chart(result){
         .range([ 0, height ])
         .domain(content.map(function(d) { return d.department; }))
         .padding(.1);
-        svg.append("g")
+
+    // Add y-axis
+    var y_axis = svg.append("g")
         .attr('id', 'y-axis')
         .call(d3.axisLeft(y))
         .selectAll(".tick")
@@ -75,18 +79,25 @@ function render_bar_chart(result){
 
     // Remove y-axis paths
     $("#y-axis .domain").remove();
+    //$("#x-axis").remove();
 
-    // append the rectangles for the bar chart
-    svg.selectAll(".bar")
+    // Outer g container for bars
+    var g_bars = svg.selectAll(".bar")
         .data(content)
-        .enter().append("rect")
+        .enter()
+        .append("g");
+
+    // Add bars to each g container
+    var bars = g_bars.append("rect")
           .attr("class", "bar")
           .attr("width", 0)
           .attr("y", function(d) { 
             return y(d.department); 
           })
           .attr("height", y.bandwidth())
-          .transition()
+
+    // Add transition on bars
+    bars.transition()
             .duration(transition_duration)
             .delay(function (d, i) {
                 return i * transition_duration;
@@ -100,14 +111,44 @@ function render_bar_chart(result){
           .attr("y", function(d) { 
             return y(d.department); 
           })
+       
+    // Add text on g container 
+    // g_bars.append("text")
+    //     .attr("class", "y-axis-label")
+    //     //y position of the label is halfway down the bar
+    //     .attr("y", function (d) {
+    //         return y(d.department) + y.bandwidth() / 2 + 4;
+    //     })
+    //     //x position is 3 pixels to the right of the bar
+    //     .attr("x", function (d) {
+    //         return x(d.sum_renumeration) + 3;
+    //     })
+    //     .style("opacity", 0)
+    //     .transition()
+    //         .duration(transition_duration)
+    //         .delay(function (d, i) {
+    //             return i * transition_duration;
+    //         })
+    //         .style("opacity", 1)
+    //         .text(function (d) {
+    //             return d.sum_renumeration;
+    //         });
 
-    // text label for the x axis
-    svg.append("text")             
-      .attr("transform",
-            "translate(" + (width/2) + " ," + 
-                           (height + margin.top) + ")")
-      .style("text-anchor", "middle")
-      .text("Renumeration (CAD$)")
-      .attr('font-size', '1.0em');;
+    // // text label for the x axis
+    // svg.append("text") 
+    //     .attr('id', 'x-axis-label')           
+    //   .attr("transform",
+    //         "translate(" + (0) + " ," + 
+    //                        (0) + ")")
+    //   .style("text-anchor", "middle")
+    //   .text("Renumeration (CAD$)")
+    //   .attr('font-size', '1.0em'); 
+
+    // var x_axis_label = document.getElementById("x-axis-label").getBoundingClientRect();
+    // var x_axis_label_width = x_axis_label.width; 
+
+    // var y_axis_height = document.getElementById("y-axis").getBBox().height;
+
+    // $("#x-axis-label").attr("transform", "translate(" + ((-0.5)*x_axis_label_width-0.03 *window.innerWidth) + ", " + (y_axis_height + 0.075 * window.innerHeight) + ")");
 }
 
