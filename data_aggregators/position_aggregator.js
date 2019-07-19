@@ -23,7 +23,7 @@ module.exports = function (df, gender) {
     let res = groupedDF_dept.aggregate(group => group.stat.sum('renumeration')).rename('aggregation', 'sum_renumeration');
 
     // Getting top 10 by sum_renumeration
-    //res = res.sortBy('sum_renumeration', true);
+    res = res.sortBy('sum_renumeration', true);
     res = res.toCollection();
 
     let final_res = [];
@@ -34,23 +34,23 @@ module.exports = function (df, gender) {
         }
     }
 
-    for (let row of final_res) {
-        let position = row.position;
-        let idx = pos_dict.indexOf(position);
-        let count_val = counts_dict[idx];
+    // for (let row of final_res) {
+    //     let position = row.position;
+    //     let idx = pos_dict.indexOf(position);
+    //     let count_val = counts_dict[idx];
 
-        row.value = row.sum_renumeration/count_val;
-    }
+    //     row.value = row.sum_renumeration/count_val;
+    // }
 
-    final_res = final_res.sort( function(a, b) {
-        if (a.value < b.value){
-            return 1;
-        }
-        if (a.value > b.value){
-            return -1;
-        }
-        return 0;
-    });
+    // final_res = final_res.sort( function(a, b) {
+    //     if (a.value < b.value){
+    //         return 1;
+    //     }
+    //     if (a.value > b.value){
+    //         return -1;
+    //     }
+    //     return 0;
+    // });
 
     return final_res.slice(0,10);
 }

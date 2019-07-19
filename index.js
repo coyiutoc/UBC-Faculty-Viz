@@ -39,12 +39,24 @@ fs.createReadStream('data/final_dataset.csv')
     		obj.department = row.department;
     	}
 
-    	// if (row.position === "Professor " || row.position === "Pr"){
-    	// 	obj.position = "Professor";
+    	let position = row.position.trim();
+    	obj.position = position;
+    	// if (position.includes("Chair")) {
+    	// 	obj.position = "Chair";
+    	// }
+    	// else if (position.includes("Dean")) {
+    	// 	obj.position = "Dean";
+    	// }
+    	// else if (position.includes("Professor") || position.includes("Prof")){
+    	// 	if (position.includes("Associate")){
+    	// 		obj.position = "Associate Professor";
+    	// 	} else {
+    	// 		obj.position = "Professor";
+    	// 	}
     	// } else {
-    		obj.position = row.position.trim();
-    	//}
-
+    	// 	obj.position = position;
+    	// }
+    	
     	if (row.gender === "mostly_female") {
     		obj.gender = "female";
     	}

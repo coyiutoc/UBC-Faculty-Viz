@@ -24,12 +24,14 @@
 <body>
 
   <div id="modal" class="overlay">
-    <span float="left">
-      <div class="btn-group toggle-container" role="group" aria-label="Basic example">
-        <button id = "dept-button" type="radio" class="btn btn-dark active toggle-button">DEPARTMENT</button>
-        <button id = "pos-button" type="radio" class="btn btn-outline-dark toggle-button">POSITION</button>
-      </div>
-    </span>
+    <div class = "header-row">
+      <span float="left">
+        <div class="btn-group toggle-container" role="group">
+          <button id = "dept-button" type="radio" class="btn btn-dark active toggle-button">DEPARTMENT</button>
+          <button id = "pos-button" type="radio" class="btn btn-outline-dark toggle-button">POSITION</button>
+        </div>
+      </span>
+    </div>
     <span float="right"><a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a></span>
     <div class="overlay-content">
       <div id="bar-chart-header">
@@ -248,8 +250,9 @@ var labels = svg.selectAll('pie-labels')
                       var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
                       return (midangle < Math.PI ? 'start' : 'end')
                   })
-                  // .attr('fill', 'white')
-                  // .attr('font-size', '2.5vh')
+
+// ------------------------------------------------------------------------
+// FUNCTIONS ==============================================================
 
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -265,17 +268,22 @@ function openModal(gender) {
     success: function(get_result){
       $("#bar-graph").empty();
       render_bar_chart(get_result);
+      $(".overlay-content").fadeIn(500);
+      $(".header-row").fadeIn(500);
       document.getElementById("modal").style.width = "100%";
     }
   });
 }
 
 function closeNav() {
+ 
   document.getElementById("modal").style.width = "0%";
-
+  
   // Reset buttons to be on dept 
   $('#dept-button').attr('class', 'btn btn-dark active toggle-button');
   $('#pos-button').attr('class', 'btn btn-outline-dark toggle-button');
+  $(".overlay-content").fadeOut(0);
+  $(".header-row").fadeOut(0);
 }
 
 </script>

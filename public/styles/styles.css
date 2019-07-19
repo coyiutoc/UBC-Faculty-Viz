@@ -138,12 +138,11 @@ text.y-axis-label {
 }
 
 .overlay a {
-  padding: 5px;
   text-decoration: none;
   font-size: 36px;
   color: #818181;
   display: block;
-  transition: 0.3s;
+/*  transition: 0.3s;*/
 }
 
 .overlay a:hover, .overlay a:focus {
@@ -162,9 +161,9 @@ text.y-axis-label {
   position: absolute;
   padding: 24px;
   left: 45px;
-  font-size: 60px;
   color: black;
-  transition: 0.3s;
+  width: auto;
+/*  transition: 0.3s;*/
 }
 
 @media screen and (max-height: 450px) {

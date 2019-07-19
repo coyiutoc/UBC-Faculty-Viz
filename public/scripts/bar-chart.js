@@ -4,7 +4,7 @@ function render_bar_chart(result){
        $(this).attr('class', 'btn btn-dark active toggle-button');
        $('#pos-button').attr('class', 'btn btn-outline-dark toggle-button');
        $('#bar-chart-title').html("Top 10 Most Highly Paid Departments");
-       $('#bar-graph-x-label').html("Sum Renumeration ($CAD)");
+       // $('#bar-graph-x-label').html("Sum Renumeration ($CAD)");
        update("department");
     });
 
@@ -12,7 +12,7 @@ function render_bar_chart(result){
        $(this).attr('class', 'btn btn-dark active toggle-button');
        $('#dept-button').attr('class', 'btn btn-outline-dark toggle-button');
        $('#bar-chart-title').html("Top 10 Most Highly Paid Positions");
-       $('#bar-graph-x-label').html("Average Salary ($CAD)");
+       // $('#bar-graph-x-label').html("Average Salary ($CAD)");
        update("position");
     });
 
@@ -32,7 +32,7 @@ function render_bar_chart(result){
     `);
 
     $('#bar-graph-x-label').html("Sum Renumeration ($CAD)");
-    
+
     var margin = {top: window.innerHeight*0.05, right: width/4, bottom: window.innerHeight*0.05, left: width/3, bottom_label_buffer: window.innerHeight*0.05},
     width = width - margin.left - margin.right,
     height = height - margin.top - margin.bottom;
@@ -67,7 +67,7 @@ function render_bar_chart(result){
                 return d.department;
             }
             return d.position;}))
-        x.domain([0, d3.max(content, function(d){ return d.value})])
+        x.domain([0, d3.max(content, function(d){ return d.sum_renumeration})])
 
         // Remove first
         $("#x-axis").remove();
@@ -112,7 +112,7 @@ function render_bar_chart(result){
 
         // Color scale
         var sequentialScale = d3.scaleLinear()
-                        .domain([d3.max(content, function(d){ return d.value}), d3.min(content, function(d){ return d.value})])
+                        .domain([d3.max(content, function(d){ return d.sum_renumeration}), d3.min(content, function(d){ return d.sum_renumeration})])
                         .interpolate(d3.interpolateHcl)
                         .range([d3.hcl("#000000"), d3.hcl(gender_colors[gender.toLowerCase()])]);
 
@@ -144,10 +144,10 @@ function render_bar_chart(result){
                     return i * transition_duration;
                 })
               .attr("width", function(d) {
-                return x(d.value); 
+                return x(d.sum_renumeration); 
               })
               .attr("fill", function(d) {
-                return sequentialScale(d.value)
+                return sequentialScale(d.sum_renumeration)
               })
               .attr("y", function(d) { 
                 if (type === "department") {

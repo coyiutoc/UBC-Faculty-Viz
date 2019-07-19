@@ -20,10 +20,10 @@ module.exports = function (df, gender) {
     let counts_dict = counts["aggregation"];
 
     // Summate across dept
-    let res = groupedDF_dept.aggregate(group => group.stat.sum('renumeration')).rename('aggregation', 'value');
+    let res = groupedDF_dept.aggregate(group => group.stat.sum('renumeration')).rename('aggregation', 'sum_renumeration');
 
     // Getting top 10 by sum_renumeration
-    res = res.sortBy('value', true);
+    res = res.sortBy('sum_renumeration', true);
     res = res.toCollection();
 
     // for (let row of res) {
