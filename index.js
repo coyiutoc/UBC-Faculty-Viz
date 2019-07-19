@@ -97,7 +97,7 @@ app.get("/aggregate/:gender",function(request, response){
     response.send(obj);
 });
 
-app.listen(8080, () => {
+app.listen((process.env.PORT || 8080), () => {
   console.log('====RUNNING ON PORT 8080==== \n')
 });
 
